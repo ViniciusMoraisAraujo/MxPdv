@@ -54,6 +54,7 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Data\Configuration\ProdutoMap.cs" />
         <Compile Include="Data\MxPdvContext.cs" />
         <Compile Include="Entities\GrupoProduto.cs" />
         <Compile Include="Entities\ItemVenda.cs" />
