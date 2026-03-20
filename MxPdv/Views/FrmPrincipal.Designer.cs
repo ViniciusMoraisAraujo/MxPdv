@@ -23,6 +23,7 @@ namespace MxPdv.Views
             this.cadastrosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gruposToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.produtosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.usuariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.vendasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.abrirPDVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -56,7 +57,8 @@ namespace MxPdv.Views
             // 
             this.cadastrosToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.gruposToolStripMenuItem,
-            this.produtosToolStripMenuItem});
+            this.produtosToolStripMenuItem,
+            this.usuariosToolStripMenuItem});
             this.cadastrosToolStripMenuItem.Name = "cadastrosToolStripMenuItem";
             this.cadastrosToolStripMenuItem.Size = new System.Drawing.Size(71, 20);
             this.cadastrosToolStripMenuItem.Text = "Cadastros";
@@ -74,6 +76,13 @@ namespace MxPdv.Views
             this.produtosToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.produtosToolStripMenuItem.Text = "Produtos";
             this.produtosToolStripMenuItem.Click += new System.EventHandler(this.produtosToolStripMenuItem_Click);
+            // 
+            // usuariosToolStripMenuItem
+            // 
+            this.usuariosToolStripMenuItem.Name = "usuariosToolStripMenuItem";
+            this.usuariosToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.usuariosToolStripMenuItem.Text = "Usuários";
+            this.usuariosToolStripMenuItem.Click += new System.EventHandler(this.usuariosToolStripMenuItem_Click);
             // 
             // vendasToolStripMenuItem
             // 
@@ -97,6 +106,7 @@ namespace MxPdv.Views
             this.labelTitulo.Location = new System.Drawing.Point(20, 50);
             this.labelTitulo.Name = "labelTitulo";
             this.labelTitulo.Size = new System.Drawing.Size(325, 37);
+            this.labelTitulo.TabIndex = 1;
             this.labelTitulo.Text = "Dashboard de Resultados";
             // 
             // panel1
@@ -108,6 +118,7 @@ namespace MxPdv.Views
             this.panel1.Location = new System.Drawing.Point(30, 110);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(220, 120);
+            this.panel1.TabIndex = 2;
             // 
             // label1
             // 
@@ -116,6 +127,7 @@ namespace MxPdv.Views
             this.label1.Location = new System.Drawing.Point(10, 15);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(127, 21);
+            this.label1.TabIndex = 0;
             this.label1.Text = "Vendas de Hoje:";
             // 
             // lblTotalHoje
@@ -125,6 +137,7 @@ namespace MxPdv.Views
             this.lblTotalHoje.Location = new System.Drawing.Point(10, 50);
             this.lblTotalHoje.Name = "lblTotalHoje";
             this.lblTotalHoje.Size = new System.Drawing.Size(113, 37);
+            this.lblTotalHoje.TabIndex = 1;
             this.lblTotalHoje.Text = "R$ 0,00";
             // 
             // panel2
@@ -136,6 +149,7 @@ namespace MxPdv.Views
             this.panel2.Location = new System.Drawing.Point(270, 110);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(220, 120);
+            this.panel2.TabIndex = 3;
             // 
             // label4
             // 
@@ -144,6 +158,7 @@ namespace MxPdv.Views
             this.label4.Location = new System.Drawing.Point(10, 15);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(152, 21);
+            this.label4.TabIndex = 0;
             this.label4.Text = "Total de Vendas (Nº):";
             // 
             // lblQtdVendas
@@ -153,6 +168,7 @@ namespace MxPdv.Views
             this.lblQtdVendas.Location = new System.Drawing.Point(10, 50);
             this.lblQtdVendas.Name = "lblQtdVendas";
             this.lblQtdVendas.Size = new System.Drawing.Size(33, 37);
+            this.lblQtdVendas.TabIndex = 1;
             this.lblQtdVendas.Text = "0";
             // 
             // panel3
@@ -164,6 +180,7 @@ namespace MxPdv.Views
             this.panel3.Location = new System.Drawing.Point(510, 110);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(260, 120);
+            this.panel3.TabIndex = 4;
             // 
             // label6
             // 
@@ -172,6 +189,7 @@ namespace MxPdv.Views
             this.label6.Location = new System.Drawing.Point(10, 15);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(176, 21);
+            this.label6.TabIndex = 0;
             this.label6.Text = "⚠️ Alerta de Estoque:";
             // 
             // lblAlertaEstoque
@@ -181,6 +199,7 @@ namespace MxPdv.Views
             this.lblAlertaEstoque.Location = new System.Drawing.Point(10, 50);
             this.lblAlertaEstoque.Name = "lblAlertaEstoque";
             this.lblAlertaEstoque.Size = new System.Drawing.Size(172, 25);
+            this.lblAlertaEstoque.TabIndex = 1;
             this.lblAlertaEstoque.Text = "Nenhum problema";
             // 
             // FrmPrincipal
@@ -196,6 +215,7 @@ namespace MxPdv.Views
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FrmPrincipal";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Mini PDV - Menu Principal";
             this.Activated += new System.EventHandler(this.FrmPrincipal_Activated);
             this.menuStrip1.ResumeLayout(false);
@@ -208,6 +228,7 @@ namespace MxPdv.Views
             this.panel3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion
@@ -216,6 +237,7 @@ namespace MxPdv.Views
         private System.Windows.Forms.ToolStripMenuItem cadastrosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem gruposToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem produtosToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem usuariosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem vendasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem abrirPDVToolStripMenuItem;
         private System.Windows.Forms.Panel panel1;

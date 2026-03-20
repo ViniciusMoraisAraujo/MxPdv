@@ -73,6 +73,31 @@ namespace MxPdv.Views
                 MessageBox.Show("Erro ao carregar os produtos: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        
+        
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Enter:
+                    SendKeys.Send("{TAB}");
+                    return true; 
+
+                case Keys.F2:
+                    btnNovo.PerformClick(); 
+                    return true;
+
+                case Keys.F3:
+                    btnSalvar.PerformClick(); 
+                    return true;
+
+                case Keys.F4:
+                    btnExcluir.PerformClick(); 
+                    return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         private void btnSalvar_Click(object sender, EventArgs e)
         {

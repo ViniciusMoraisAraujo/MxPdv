@@ -52,7 +52,7 @@ namespace MxPdv.Views
             this.txtNome.Location = new System.Drawing.Point(23, 36);
             this.txtNome.Name = "txtNome";
             this.txtNome.Size = new System.Drawing.Size(350, 20);
-            this.txtNome.TabIndex = 10;
+            this.txtNome.TabIndex = 1;
             // 
             // lblPreco
             // 
@@ -60,7 +60,7 @@ namespace MxPdv.Views
             this.lblPreco.Location = new System.Drawing.Point(386, 20);
             this.lblPreco.Name = "lblPreco";
             this.lblPreco.Size = new System.Drawing.Size(61, 13);
-            this.lblPreco.TabIndex = 9;
+            this.lblPreco.TabIndex = 2123;
             this.lblPreco.Text = "Preço (R$):";
             // 
             // txtPreco
@@ -68,7 +68,7 @@ namespace MxPdv.Views
             this.txtPreco.Location = new System.Drawing.Point(389, 36);
             this.txtPreco.Name = "txtPreco";
             this.txtPreco.Size = new System.Drawing.Size(100, 20);
-            this.txtPreco.TabIndex = 8;
+            this.txtPreco.TabIndex = 2;
             // 
             // lblEstoque
             // 
@@ -76,7 +76,7 @@ namespace MxPdv.Views
             this.lblEstoque.Location = new System.Drawing.Point(506, 20);
             this.lblEstoque.Name = "lblEstoque";
             this.lblEstoque.Size = new System.Drawing.Size(79, 13);
-            this.lblEstoque.TabIndex = 7;
+            this.lblEstoque.TabIndex = 123;
             this.lblEstoque.Text = "Estoque Inicial:";
             // 
             // txtEstoque
@@ -84,7 +84,7 @@ namespace MxPdv.Views
             this.txtEstoque.Location = new System.Drawing.Point(509, 36);
             this.txtEstoque.Name = "txtEstoque";
             this.txtEstoque.Size = new System.Drawing.Size(100, 20);
-            this.txtEstoque.TabIndex = 6;
+            this.txtEstoque.TabIndex = 3;
             // 
             // lblGrupo
             // 
@@ -92,7 +92,7 @@ namespace MxPdv.Views
             this.lblGrupo.Location = new System.Drawing.Point(20, 70);
             this.lblGrupo.Name = "lblGrupo";
             this.lblGrupo.Size = new System.Drawing.Size(39, 13);
-            this.lblGrupo.TabIndex = 5;
+            this.lblGrupo.TabIndex = 1321;
             this.lblGrupo.Text = "Grupo:";
             // 
             // cbxGrupo
@@ -113,7 +113,7 @@ namespace MxPdv.Views
             this.dgvProdutos.ReadOnly = true;
             this.dgvProdutos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvProdutos.Size = new System.Drawing.Size(740, 240);
-            this.dgvProdutos.TabIndex = 3;
+            this.dgvProdutos.TabIndex = 10000;
             this.dgvProdutos.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvProdutos_CellDoubleClick);
             // 
             // btnSalvar
@@ -121,7 +121,7 @@ namespace MxPdv.Views
             this.btnSalvar.Location = new System.Drawing.Point(133, 130);
             this.btnSalvar.Name = "btnSalvar";
             this.btnSalvar.Size = new System.Drawing.Size(100, 30);
-            this.btnSalvar.TabIndex = 2;
+            this.btnSalvar.TabIndex = 6;
             this.btnSalvar.Text = "Salvar";
             this.btnSalvar.UseVisualStyleBackColor = true;
             this.btnSalvar.Click += new System.EventHandler(this.btnSalvar_Click);
@@ -131,7 +131,7 @@ namespace MxPdv.Views
             this.btnExcluir.Location = new System.Drawing.Point(243, 130);
             this.btnExcluir.Name = "btnExcluir";
             this.btnExcluir.Size = new System.Drawing.Size(100, 30);
-            this.btnExcluir.TabIndex = 1;
+            this.btnExcluir.TabIndex = 7;
             this.btnExcluir.Text = "Excluir";
             this.btnExcluir.UseVisualStyleBackColor = true;
             this.btnExcluir.Click += new System.EventHandler(this.btnExcluir_Click);
@@ -141,7 +141,7 @@ namespace MxPdv.Views
             this.btnNovo.Location = new System.Drawing.Point(23, 130);
             this.btnNovo.Name = "btnNovo";
             this.btnNovo.Size = new System.Drawing.Size(100, 30);
-            this.btnNovo.TabIndex = 0;
+            this.btnNovo.TabIndex = 5;
             this.btnNovo.Text = "Novo";
             this.btnNovo.UseVisualStyleBackColor = true;
             this.btnNovo.Click += new System.EventHandler(this.btnNovo_Click);
