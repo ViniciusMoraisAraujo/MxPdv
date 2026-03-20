@@ -109,6 +109,9 @@
         <EmbeddedResource Include="Views\FrmGrupos.resx">
           <DependentUpon>FrmGrupos.cs</DependentUpon>
         </EmbeddedResource>
+        <EmbeddedResource Include="Views\FrmLogin.resx">
+          <DependentUpon>FrmLogin.cs</DependentUpon>
+        </EmbeddedResource>
         <EmbeddedResource Include="Views\FrmProdutos.resx">
           <DependentUpon>FrmProdutos.cs</DependentUpon>
         </EmbeddedResource>

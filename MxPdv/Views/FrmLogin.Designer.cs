@@ -17,6 +17,10 @@ namespace MxPdv.Views
 
         #region Windows Form Designer generated code
 
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
             this.lblTitulo = new System.Windows.Forms.Label();
@@ -33,7 +37,8 @@ namespace MxPdv.Views
             this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTitulo.Location = new System.Drawing.Point(120, 30);
             this.lblTitulo.Name = "lblTitulo";
-            this.lblTitulo.Size = new System.Drawing.Size(155, 30);
+            this.lblTitulo.Size = new System.Drawing.Size(166, 30);
+            this.lblTitulo.TabIndex = 5;
             this.lblTitulo.Text = "Acesso ao PDV";
             // 
             // lblUsuario
@@ -42,6 +47,7 @@ namespace MxPdv.Views
             this.lblUsuario.Location = new System.Drawing.Point(60, 90);
             this.lblUsuario.Name = "lblUsuario";
             this.lblUsuario.Size = new System.Drawing.Size(46, 13);
+            this.lblUsuario.TabIndex = 100;
             this.lblUsuario.Text = "Usuário:";
             // 
             // txtUsuario
@@ -49,6 +55,7 @@ namespace MxPdv.Views
             this.txtUsuario.Location = new System.Drawing.Point(63, 106);
             this.txtUsuario.Name = "txtUsuario";
             this.txtUsuario.Size = new System.Drawing.Size(260, 20);
+            this.txtUsuario.TabIndex = 1;
             // 
             // lblSenha
             // 
@@ -56,14 +63,16 @@ namespace MxPdv.Views
             this.lblSenha.Location = new System.Drawing.Point(60, 140);
             this.lblSenha.Name = "lblSenha";
             this.lblSenha.Size = new System.Drawing.Size(41, 13);
+            this.lblSenha.TabIndex = 1001;
             this.lblSenha.Text = "Senha:";
             // 
             // txtSenha
             // 
             this.txtSenha.Location = new System.Drawing.Point(63, 156);
             this.txtSenha.Name = "txtSenha";
-            this.txtSenha.PasswordChar = '*'; // Oculta a senha digitada!
+            this.txtSenha.PasswordChar = '*';
             this.txtSenha.Size = new System.Drawing.Size(260, 20);
+            this.txtSenha.TabIndex = 2;
             // 
             // btnEntrar
             // 
@@ -74,6 +83,7 @@ namespace MxPdv.Views
             this.btnEntrar.Location = new System.Drawing.Point(63, 200);
             this.btnEntrar.Name = "btnEntrar";
             this.btnEntrar.Size = new System.Drawing.Size(260, 40);
+            this.btnEntrar.TabIndex = 3;
             this.btnEntrar.Text = "ENTRAR";
             this.btnEntrar.UseVisualStyleBackColor = false;
             this.btnEntrar.Click += new System.EventHandler(this.btnEntrar_Click);
@@ -89,11 +99,11 @@ namespace MxPdv.Views
             this.Controls.Add(this.txtUsuario);
             this.Controls.Add(this.lblUsuario);
             this.Controls.Add(this.lblTitulo);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog; // Impede redimensionar a tela
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FrmLogin";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen; // Abre bem no meio do monitor
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Login";
             this.ResumeLayout(false);
             this.PerformLayout();

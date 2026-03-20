@@ -11,8 +11,9 @@ namespace MxPdv.Views
         public FrmLogin()
         {
             InitializeComponent();
-            
             CriarUsuarioPadraoSeNecessario();
+
+            this.AcceptButton = btnEntrar;
         }
 
         private void btnEntrar_Click(object sender, EventArgs e)
