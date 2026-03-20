@@ -13,33 +13,24 @@ namespace MxPdv.Views
         public FrmProdutos()
         {
             InitializeComponent();
-            
-            // É vital carregar o ComboBox ANTES da grade, 
-            // para que a lista de grupos já esteja pronta quando a tela abrir.
+
             CarregarComboboxGrupos();
             CarregarGrid();
         }
-
-        // --- A MÁGICA DO DESAFIO (COMBOBOX) ---
         private void CarregarComboboxGrupos()
         {
             try
             {
                 using (var context = new MxPdvContext())
                 {
-                    // Busca todos os grupos no banco de dados
                     var listaDeGrupos = context.GruposProdutos.ToList();
 
-                    // Preenche o ComboBox com a lista
                     cbxGrupo.DataSource = listaDeGrupos;
                     
-                    // DisplayMember: O que o usuário VÊ na tela (O nome do grupo)
                     cbxGrupo.DisplayMember = "Nome"; 
                     
-                    // ValueMember: O que o sistema GUARDA nos bastidores (O ID do grupo)
                     cbxGrupo.ValueMember = "Id";     
 
-                    // SelectedIndex = -1 faz o ComboBox começar vazio, obrigando a escolha
                     cbxGrupo.SelectedIndex = -1;     
                 }
             }
@@ -49,20 +40,32 @@ namespace MxPdv.Views
             }
         }
 
-        // --- LER E LISTAR ---
         private void CarregarGrid()
         {
             try
             {
                 using (var context = new MxPdvContext())
                 {
-                    // O "Include" faz um JOIN no banco de dados para trazer o Nome do Grupo junto com o Produto
-                    var produtos = context.Produtos.Include("Grupo").ToList();
+                    var listaDeProdutos = context.Produtos
+                        .Select(p => new 
+                        { 
+                            Id = p.Id, 
+                            Nome = p.Nome,
+                            Preco = p.Preco,
+                            Estoque = p.Estoque,
+                            GrupoProdutoId = p.GrupoProdutoId, 
+                            Grupo = p.GrupoProduto.Nome 
+                        })
+                        .ToList();     
                     
-                    dgvProdutos.DataSource = produtos;
+                    dgvProdutos.DataSource = listaDeProdutos;
                     
-                    // Esconde a coluna da propriedade de navegação para a grade ficar limpa
                     dgvProdutos.Columns["Grupo"].Visible = false; 
+                    
+                    if (dgvProdutos.Columns["GrupoProduto"] != null)
+                    {
+                        dgvProdutos.Columns["GrupoProduto"].Visible = false; 
+                    }
                 }
             }
             catch (Exception ex)
@@ -71,38 +74,32 @@ namespace MxPdv.Views
             }
         }
 
-        // --- SALVAR (CREATE / UPDATE) ---
         private void btnSalvar_Click(object sender, EventArgs e)
         {
-            // 1. Validações Inteligentes (Conta pontos no desafio!)
             if (string.IsNullOrWhiteSpace(txtNome.Text))
             {
                 MessageBox.Show("O nome do produto é obrigatório!", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Garante que o usuário selecionou um grupo (Regra de Negócio)
             if (cbxGrupo.SelectedValue == null)
             {
                 MessageBox.Show("A seleção de um Grupo é obrigatória!", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Tenta converter o texto do preço para um número decimal
             if (!decimal.TryParse(txtPreco.Text, out decimal precoConvertido))
             {
                 MessageBox.Show("Preço inválido. Digite apenas números e vírgula.", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Tenta converter o texto do estoque para um número inteiro
             if (!int.TryParse(txtEstoque.Text, out int estoqueConvertido))
             {
                 MessageBox.Show("Estoque inválido. Digite um número inteiro.", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // 2. Gravação no Banco
             try
             {
                 using (var context = new MxPdvContext())
@@ -114,12 +111,11 @@ namespace MxPdv.Views
                             Nome = txtNome.Text,
                             Preco = precoConvertido,
                             Estoque = estoqueConvertido,
-                            // Pega o "Id" do grupo que está escondido no ValueMember do ComboBox
                             GrupoProdutoId = Convert.ToInt32(cbxGrupo.SelectedValue) 
                         };
                         context.Produtos.Add(novoProduto);
                     }
-                    else // MODO ALTERAÇÃO
+                    else 
                     {
                         var produtoExistente = context.Produtos.Find(_produtoIdSelecionado);
                         if (produtoExistente != null)
@@ -131,7 +127,7 @@ namespace MxPdv.Views
                         }
                     }
 
-                    context.SaveChanges(); // Salva de verdade
+                    context.SaveChanges(); 
                     MessageBox.Show("Produto salvo com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     
                     LimparCampos();
@@ -144,7 +140,6 @@ namespace MxPdv.Views
             }
         }
 
-        // --- EXCLUIR ---
         private void btnExcluir_Click(object sender, EventArgs e)
         {
             if (_produtoIdSelecionado == 0)
@@ -177,7 +172,6 @@ namespace MxPdv.Views
             }
         }
 
-        // --- SELECIONAR NA GRADE ---
         private void dgvProdutos_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
@@ -189,12 +183,10 @@ namespace MxPdv.Views
                 txtPreco.Text = linha.Cells["Preco"].Value.ToString();
                 txtEstoque.Text = linha.Cells["Estoque"].Value.ToString();
                 
-                // Faz o ComboBox pular automaticamente para o grupo que estava cadastrado no produto
                 cbxGrupo.SelectedValue = linha.Cells["GrupoProdutoId"].Value;
             }
         }
 
-        // --- LIMPAR ---
         private void btnNovo_Click(object sender, EventArgs e)
         {
             LimparCampos();
@@ -205,7 +197,7 @@ namespace MxPdv.Views
             txtNome.Clear();
             txtPreco.Clear();
             txtEstoque.Clear();
-            cbxGrupo.SelectedIndex = -1; // Volta a ficar vazio
+            cbxGrupo.SelectedIndex = -1; 
             _produtoIdSelecionado = 0;
             txtNome.Focus();
         }
