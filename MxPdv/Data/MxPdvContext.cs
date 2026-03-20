@@ -1,4 +1,6 @@
 using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using MxPdv.Data.Configuration;
 using MxPdv.Entities;
 
 namespace MxPdv.Data
@@ -14,7 +16,18 @@ namespace MxPdv.Data
 
         public MxPdvContext() : base("name=MxPdvContext")
         {
-            
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+            modelBuilder.Configurations.Add(new UsuarioMap());
+            modelBuilder.Configurations.Add(new GrupoProdutoMap());
+            modelBuilder.Configurations.Add(new ProdutoMap());
+            modelBuilder.Configurations.Add(new VendaMap());
+            modelBuilder.Configurations.Add(new ItemVendaMap());
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
