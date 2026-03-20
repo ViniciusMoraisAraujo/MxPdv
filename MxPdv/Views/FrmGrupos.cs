@@ -21,7 +21,14 @@ namespace MxPdv.Views
             {
                 using (var context = new MxPdvContext())
                 {
-                    dgvGrupos.DataSource = context.GruposProdutos.ToList();
+                    var listaDeGrupo = context.GruposProdutos
+                        .Select(x => new
+                        {
+                            Id = x.Id,
+                            Nome = x.Nome,
+                        }).ToList();
+                    
+                    dgvGrupos.DataSource = listaDeGrupo;
                 }
             }
             catch (Exception ex)
