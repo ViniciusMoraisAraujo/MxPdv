@@ -1,36 +1,38 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
-using MxPdv.Data;
 using MxPdv.Entities;
+using MxPdv.Interfaces;
+using MxPdv.Services;
 
 namespace MxPdv.Views
 {
     public partial class FrmGrupos : Form
     {
         private int _grupoIdSelecionado = 0;
+        private readonly IGrupoProdutoService _grupoService;
 
         public FrmGrupos()
         {
             this.StartPosition = FormStartPosition.CenterScreen;
+            _grupoService = new GrupoProdutoService(); 
+            
             InitializeComponent();
             CarregarGrid(); 
         }
+
         private void CarregarGrid()
         {
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    var listaDeGrupo = context.GruposProdutos
-                        .Select(x => new
-                        {
-                            Id = x.Id,
-                            Nome = x.Nome,
-                        }).ToList();
-                    
-                    dgvGrupos.DataSource = listaDeGrupo;
-                }
+                var listaDeGrupo = _grupoService.ObterTodos()
+                    .Select(x => new
+                    {
+                        Id = x.Id,
+                        Nome = x.Nome,
+                    }).ToList();
+                
+                dgvGrupos.DataSource = listaDeGrupo;
             }
             catch (Exception ex)
             {
@@ -48,34 +50,51 @@ namespace MxPdv.Views
 
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    if (_grupoIdSelecionado == 0)
-                    {
-                        var novoGrupo = new GrupoProduto { Nome = txtNome.Text };
-                        context.GruposProdutos.Add(novoGrupo);
-                    }
-                    else
-                    {
-                        var grupoExistente = context.GruposProdutos.Find(_grupoIdSelecionado);
-                        if (grupoExistente != null)
-                        {
-                            grupoExistente.Nome = txtNome.Text;
-                        }
-                    }
+                var grupo = new GrupoProduto 
+                { 
+                    Id = _grupoIdSelecionado,
+                    Nome = txtNome.Text 
+                };
 
-                    context.SaveChanges();
-                    
-                    MessageBox.Show("Grupo salvo com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    
-                    LimparCampos();
-                    CarregarGrid();
-                }
+                _grupoService.Salvar(grupo);
+                
+                MessageBox.Show("Grupo salvo com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                LimparCampos();
+                CarregarGrid();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Erro ao salvar: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Enter:
+                    if (this.ActiveControl is Button)
+                        return base.ProcessCmdKey(ref msg, keyData);
+
+                    if (this.ActiveControl == dgvGrupos)
+                        SelecionarGrupoDaGrid();
+                    
+                    return true; 
+
+                case Keys.F2:
+                    btnNovo.PerformClick(); 
+                    return true;
+
+                case Keys.F3:
+                    btnSalvar.PerformClick(); 
+                    return true;
+
+                case Keys.F4:
+                    btnExcluir.PerformClick(); 
+                    return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void btnExcluir_Click(object sender, EventArgs e)
@@ -92,22 +111,15 @@ namespace MxPdv.Views
             {
                 try
                 {
-                    using (var context = new MxPdvContext())
-                    {
-                        var grupo = context.GruposProdutos.Find(_grupoIdSelecionado);
-                        if (grupo != null)
-                        {
-                            context.GruposProdutos.Remove(grupo); 
-                            context.SaveChanges();                
-                            MessageBox.Show("Grupo excluído com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LimparCampos();
-                            CarregarGrid();
-                        }
-                    }
+                    _grupoService.Excluir(_grupoIdSelecionado);
+                    
+                    MessageBox.Show("Grupo excluído com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LimparCampos();
+                    CarregarGrid();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Não é possível excluir este grupo, pois podem existir produtos vinculados a ele.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -116,10 +128,7 @@ namespace MxPdv.Views
         {
             if (e.RowIndex >= 0)
             {
-                DataGridViewRow linha = dgvGrupos.Rows[e.RowIndex];
-                
-                _grupoIdSelecionado = Convert.ToInt32(linha.Cells["Id"].Value);
-                txtNome.Text = linha.Cells["Nome"].Value.ToString();
+                SelecionarGrupoDaGrid();
             }
         }
 
@@ -134,19 +143,19 @@ namespace MxPdv.Views
             _grupoIdSelecionado = 0; 
             txtNome.Focus();
         }
-
-        private void FrmGrupos_Load(object sender, EventArgs e)
+        
+        private void SelecionarGrupoDaGrid()
         {
+            if (dgvGrupos.CurrentRow != null && dgvGrupos.CurrentRow.Index >= 0)
+            {
+                DataGridViewRow linha = dgvGrupos.CurrentRow;
+                
+                _grupoIdSelecionado = Convert.ToInt32(linha.Cells["Id"].Value);
+                txtNome.Text = linha.Cells["Nome"].Value.ToString();
+                
+                txtNome.Focus(); 
+            }
         }
-
-        private void txtNome_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void Excluir_Click(object sender, EventArgs e)
-        {
-        }
-
-
+        
     }
 }
