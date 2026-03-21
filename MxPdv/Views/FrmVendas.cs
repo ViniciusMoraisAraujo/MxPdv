@@ -2,8 +2,9 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
-using MxPdv.Data;
-using MxPdv.Entities; 
+using MxPdv.Entities;
+using MxPdv.Interfaces;
+using MxPdv.Services;
 
 namespace MxPdv.Views
 {
@@ -21,8 +22,14 @@ namespace MxPdv.Views
         private BindingList<ItemCarrinho> _carrinho = new BindingList<ItemCarrinho>();
         private decimal _valorTotalVenda = 0;
         
+        private readonly IVendaService _vendaService;
+        private readonly IProdutoService _produtoService;
+
         public FrmVendas()
         {
+            _vendaService = new VendaService();
+            _produtoService = new ProdutoService();
+            
             this.StartPosition = FormStartPosition.CenterScreen;
             InitializeComponent();
             ConfigurarCarrinho();
@@ -38,15 +45,12 @@ namespace MxPdv.Views
         {
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    var produtosDisponiveis = context.Produtos.Where(p => p.Estoque > 0).ToList();
-                    
-                    cbxProduto.DataSource = produtosDisponiveis;
-                    cbxProduto.DisplayMember = "Nome"; 
-                    cbxProduto.ValueMember = "Id";     
-                    cbxProduto.SelectedIndex = -1;     
-                }
+                var produtosDisponiveis = _produtoService.ObterTodos().Where(p => p.Estoque > 0).ToList();
+                
+                cbxProduto.DataSource = produtosDisponiveis;
+                cbxProduto.DisplayMember = "Nome"; 
+                cbxProduto.ValueMember = "Id";     
+                cbxProduto.SelectedIndex = -1;     
             }
             catch (Exception ex)
             {
@@ -58,7 +62,6 @@ namespace MxPdv.Views
         {
             switch (keyData)
             {
-
                 case Keys.F3:
                     btnFinalizar.PerformClick();
                     return true;
@@ -76,6 +79,7 @@ namespace MxPdv.Views
                     return true;
 
                 case Keys.Enter:
+                    if (this.ActiveControl is Button) return base.ProcessCmdKey(ref msg, keyData);
                     if (txtQuantidade.Focused || cbxProduto.Focused)
                     {
                         btnAdicionar.PerformClick();
@@ -103,11 +107,11 @@ namespace MxPdv.Views
 
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    int produtoId = Convert.ToInt32(cbxProduto.SelectedValue);
-                    var produto = context.Produtos.Find(produtoId);
+                int produtoId = Convert.ToInt32(cbxProduto.SelectedValue);
+                var produto = _produtoService.ObterTodos().FirstOrDefault(p => p.Id == produtoId);
 
+                if (produto != null)
+                {
                     if (produto.Estoque < quantidadeDesejada)
                     {
                         MessageBox.Show($"Estoque insuficiente! Temos apenas {produto.Estoque} unidades de {produto.Nome}.", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -150,43 +154,30 @@ namespace MxPdv.Views
             {
                 try
                 {
-                    using (var context = new MxPdvContext())
+                    var novaVenda = new Venda
                     {
-                        var novaVenda = new Venda
+                        DataVenda = DateTime.Now,
+                        ValorTotal = _valorTotalVenda
+                    };
+
+                    foreach (var itemCarrinho in _carrinho)
+                    {
+                        novaVenda.Itens.Add(new ItemVenda
                         {
-                            DataVenda = DateTime.Now,
-                            ValorTotal = _valorTotalVenda
-                        };
-
-                        foreach (var itemCarrinho in _carrinho)
-                        {
-                            var itemVenda = new ItemVenda
-                            {
-                                ProdutoId = itemCarrinho.ProdutoId,
-                                Quantidade = itemCarrinho.Quantidade,
-                                ValorUnitario = itemCarrinho.ValorUnitario
-                            };
-                            
-                            novaVenda.Itens.Add(itemVenda);
-
-                            var produtoNoBanco = context.Produtos.Find(itemCarrinho.ProdutoId);
-                            if (produtoNoBanco != null)
-                            {
-                                produtoNoBanco.Estoque -= itemCarrinho.Quantidade;
-                            }
-                        }
-
-                        context.Vendas.Add(novaVenda);
-                        context.SaveChanges(); 
-
-                        MessageBox.Show("Venda finalizada com sucesso e estoque atualizado!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        
-                        LimparTelaVenda();
+                            ProdutoId = itemCarrinho.ProdutoId,
+                            Quantidade = itemCarrinho.Quantidade,
+                            ValorUnitario = itemCarrinho.ValorUnitario
+                        });
                     }
+
+                    _vendaService.FinalizarVenda(novaVenda);
+
+                    MessageBox.Show("Venda finalizada com sucesso e estoque atualizado!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LimparTelaVenda();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao finalizar a venda: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "Erro ao Finalizar", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -201,10 +192,5 @@ namespace MxPdv.Views
             
             CarregarComboboxProdutos(); 
         }
-
-
     }
-
-
-
 }
