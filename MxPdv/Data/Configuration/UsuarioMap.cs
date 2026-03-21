@@ -18,7 +18,7 @@ namespace MxPdv.Data.Configuration
 
             Property(u => u.Senha)
                 .IsRequired()
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .HasColumnType("nvarchar")
                 .HasColumnName("Senha");
         }
