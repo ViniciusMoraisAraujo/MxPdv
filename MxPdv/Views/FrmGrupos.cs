@@ -12,6 +12,7 @@ namespace MxPdv.Views
 
         public FrmGrupos()
         {
+            this.StartPosition = FormStartPosition.CenterScreen;
             InitializeComponent();
             CarregarGrid(); 
         }

@@ -12,7 +12,7 @@ namespace MxPdv.Views
         {
             InitializeComponent();
             CriarUsuarioPadraoSeNecessario();
-
+            this.StartPosition = FormStartPosition.CenterScreen;
             this.AcceptButton = btnEntrar;
         }
 

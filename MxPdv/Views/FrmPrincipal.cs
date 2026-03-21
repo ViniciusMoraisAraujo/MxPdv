@@ -9,6 +9,7 @@ namespace MxPdv.Views
     {
         public FrmPrincipal()
         {
+            this.StartPosition = FormStartPosition.CenterScreen;
             InitializeComponent();
         }
         

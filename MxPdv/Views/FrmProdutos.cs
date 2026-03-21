@@ -13,7 +13,7 @@ namespace MxPdv.Views
         public FrmProdutos()
         {
             InitializeComponent();
-
+            this.StartPosition = FormStartPosition.CenterScreen;
             CarregarComboboxGrupos();
             CarregarGrid();
         }
