@@ -1,38 +1,38 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
-using MxPdv.Data;
 using MxPdv.Entities;
+using MxPdv.Interfaces;
+using MxPdv.Services;
 
 namespace MxPdv.Views
 {
     public partial class FrmUsuarios : Form
     {
         private int _usuarioIdSelecionado = 0;
+        private readonly IUsuarioService _usuarioService;
 
         public FrmUsuarios()
         {
+            _usuarioService = new UsuarioService();
             InitializeComponent();
-            CarregarGrid();
             this.StartPosition = FormStartPosition.CenterScreen;
+            CarregarGrid();
         }
 
         private void CarregarGrid()
         {
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    var listaDeUsuarios = context.Usuarios
-                        .Select(u => new 
-                        { 
-                            Id = u.Id, 
-                            Login = u.Login 
-                        })
-                        .ToList();
+                var listaDeUsuarios = _usuarioService.ObterTodos()
+                    .Select(u => new 
+                    { 
+                        Id = u.Id, 
+                        Login = u.Login 
+                    })
+                    .ToList();
 
-                    dgvUsuarios.DataSource = listaDeUsuarios;
-                }
+                dgvUsuarios.DataSource = listaDeUsuarios;
             }
             catch (Exception ex)
             {
@@ -50,42 +50,19 @@ namespace MxPdv.Views
 
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    bool loginJaExiste = context.Usuarios
-                        .Any(u => u.Login.ToLower() == txtLogin.Text.ToLower() && u.Id != _usuarioIdSelecionado);
+                var usuario = new Usuario 
+                { 
+                    Id = _usuarioIdSelecionado,
+                    Login = txtLogin.Text,
+                    Senha = txtSenha.Text 
+                };
 
-                    if (loginJaExiste)
-                    {
-                        MessageBox.Show("Já existe um utilizador com este Login. Escolha outro.", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                _usuarioService.Salvar(usuario);
 
-                    if (_usuarioIdSelecionado == 0) // MODO INCLUSÃO
-                    {
-                        var novoUsuario = new Usuario 
-                        { 
-                            Login = txtLogin.Text,
-                            Senha = txtSenha.Text
-                        };
-                        context.Usuarios.Add(novoUsuario);
-                    }
-                    else 
-                    {
-                        var usuarioExistente = context.Usuarios.Find(_usuarioIdSelecionado);
-                        if (usuarioExistente != null)
-                        {
-                            usuarioExistente.Login = txtLogin.Text;
-                            usuarioExistente.Senha = txtSenha.Text;
-                        }
-                    }
-
-                    context.SaveChanges();
-                    MessageBox.Show("Utilizador salvo com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    
-                    LimparCampos();
-                    CarregarGrid();
-                }
+                MessageBox.Show("Utilizador salvo com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                LimparCampos();
+                CarregarGrid();
             }
             catch (Exception ex)
             {
@@ -101,63 +78,57 @@ namespace MxPdv.Views
                 return;
             }
 
-            using (var context = new MxPdvContext())
-            {
-                if (context.Usuarios.Count() <= 1)
-                {
-                    MessageBox.Show("Não pode excluir o único utilizador do sistema, senão nunca mais consegue fazer Login!", "Segurança", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    return;
-                }
-            }
-
             if (MessageBox.Show("Tem certeza que deseja excluir este utilizador?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 try
                 {
-                    using (var context = new MxPdvContext())
-                    {
-                        var usuario = context.Usuarios.Find(_usuarioIdSelecionado);
-                        if (usuario != null)
-                        {
-                            context.Usuarios.Remove(usuario);
-                            context.SaveChanges();
-                            MessageBox.Show("Utilizador excluído!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LimparCampos();
-                            CarregarGrid();
-                        }
-                    }
+                    _usuarioService.Excluir(_usuarioIdSelecionado);
+                    MessageBox.Show("Utilizador excluído!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LimparCampos();
+                    CarregarGrid();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao excluir: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "Segurança", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
+            }
+        }
+
+        private void SelecionarUsuarioDaGrid()
+        {
+            if (dgvUsuarios.CurrentRow != null && dgvUsuarios.CurrentRow.Index >= 0)
+            {
+                DataGridViewRow linha = dgvUsuarios.CurrentRow;
+                _usuarioIdSelecionado = Convert.ToInt32(linha.Cells["Id"].Value);
+                txtLogin.Text = linha.Cells["Login"].Value.ToString();
+                txtSenha.Text = ""; 
+                txtLogin.Focus();
             }
         }
 
         private void dgvUsuarios_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
-            {
-                DataGridViewRow linha = dgvUsuarios.Rows[e.RowIndex];
-                
-                _usuarioIdSelecionado = Convert.ToInt32(linha.Cells["Id"].Value);
-                txtLogin.Text = linha.Cells["Login"].Value.ToString();
-                
-                using (var context = new MxPdvContext())
-                {
-                    var usuario = context.Usuarios.Find(_usuarioIdSelecionado);
-                    if (usuario != null)
-                    {
-                        txtSenha.Text = usuario.Senha;
-                    }
-                }
-            }
+            if (e.RowIndex >= 0) SelecionarUsuarioDaGrid();
         }
 
-        private void btnNovo_Click(object sender, EventArgs e)
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            LimparCampos();
+            switch (keyData)
+            {
+                case Keys.Enter:
+                    if (this.ActiveControl is Button) return base.ProcessCmdKey(ref msg, keyData);
+                    if (this.ActiveControl == dgvUsuarios)
+                    {
+                        SelecionarUsuarioDaGrid();
+                        return true;
+                    }
+                    SendKeys.Send("{TAB}");
+                    return true; 
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
+
+        private void btnNovo_Click(object sender, EventArgs e) => LimparCampos();
 
         private void LimparCampos()
         {
@@ -165,16 +136,6 @@ namespace MxPdv.Views
             txtSenha.Clear();
             _usuarioIdSelecionado = 0;
             txtLogin.Focus();
-        }
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            if (keyData == Keys.Enter)
-            {
-                SendKeys.Send("{TAB}");
-                return true; 
-            }
-            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }
