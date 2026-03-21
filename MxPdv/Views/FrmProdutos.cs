@@ -1,38 +1,39 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
-using MxPdv.Data;
 using MxPdv.Entities;
+using MxPdv.Interfaces;
+using MxPdv.Services;
 
 namespace MxPdv.Views
 {
     public partial class FrmProdutos : Form
     {
         private int _produtoIdSelecionado = 0;
+        private readonly IProdutoService _produtoService;
+        private readonly IGrupoProdutoService _grupoService;
 
         public FrmProdutos()
         {
+            _produtoService = new ProdutoService();
+            _grupoService = new GrupoProdutoService(); 
+            
             InitializeComponent();
             this.StartPosition = FormStartPosition.CenterScreen;
             CarregarComboboxGrupos();
             CarregarGrid();
         }
+
         private void CarregarComboboxGrupos()
         {
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    var listaDeGrupos = context.GruposProdutos.ToList();
+                var listaDeGrupos = _grupoService.ObterTodos();
 
-                    cbxGrupo.DataSource = listaDeGrupos;
-                    
-                    cbxGrupo.DisplayMember = "Nome"; 
-                    
-                    cbxGrupo.ValueMember = "Id";     
-
-                    cbxGrupo.SelectedIndex = -1;     
-                }
+                cbxGrupo.DataSource = listaDeGrupos;
+                cbxGrupo.DisplayMember = "Nome"; 
+                cbxGrupo.ValueMember = "Id";     
+                cbxGrupo.SelectedIndex = -1;     
             }
             catch (Exception ex)
             {
@@ -44,36 +45,32 @@ namespace MxPdv.Views
         {
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    var listaDeProdutos = context.Produtos
-                        .Select(p => new 
-                        { 
-                            Id = p.Id, 
-                            Nome = p.Nome,
-                            Preco = p.Preco,
-                            Estoque = p.Estoque,
-                            GrupoProdutoId = p.GrupoProdutoId, 
-                            Grupo = p.GrupoProduto.Nome 
-                        })
-                        .ToList();     
-                    
-                    dgvProdutos.DataSource = listaDeProdutos;
-                    
+                // Chamamos o serviço e mapeamos o resultado.
+                var listaDeProdutos = _produtoService.ObterTodos()
+                    .Select(p => new 
+                    { 
+                        Id = p.Id, 
+                        Nome = p.Nome,
+                        Preco = p.Preco,
+                        Estoque = p.Estoque,
+                        GrupoProdutoId = p.GrupoProdutoId, 
+                        Grupo = p.GrupoProduto?.Nome 
+                    })
+                    .ToList();     
+                
+                dgvProdutos.DataSource = listaDeProdutos;
+                
+                if (dgvProdutos.Columns["Grupo"] != null)
                     dgvProdutos.Columns["Grupo"].Visible = false; 
-                    
-                    if (dgvProdutos.Columns["GrupoProduto"] != null)
-                    {
-                        dgvProdutos.Columns["GrupoProduto"].Visible = false; 
-                    }
-                }
+                
+                if (dgvProdutos.Columns["GrupoProduto"] != null)
+                    dgvProdutos.Columns["GrupoProduto"].Visible = false; 
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Erro ao carregar os produtos: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        
         
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -82,20 +79,16 @@ namespace MxPdv.Views
                 case Keys.Enter:
                     SendKeys.Send("{TAB}");
                     return true; 
-
                 case Keys.F2:
                     btnNovo.PerformClick(); 
                     return true;
-
                 case Keys.F3:
                     btnSalvar.PerformClick(); 
                     return true;
-
                 case Keys.F4:
                     btnExcluir.PerformClick(); 
                     return true;
             }
-
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -106,19 +99,16 @@ namespace MxPdv.Views
                 MessageBox.Show("O nome do produto é obrigatório!", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             if (cbxGrupo.SelectedValue == null)
             {
                 MessageBox.Show("A seleção de um Grupo é obrigatória!", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             if (!decimal.TryParse(txtPreco.Text, out decimal precoConvertido))
             {
                 MessageBox.Show("Preço inválido. Digite apenas números e vírgula.", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             if (!int.TryParse(txtEstoque.Text, out int estoqueConvertido))
             {
                 MessageBox.Show("Estoque inválido. Digite um número inteiro.", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -127,37 +117,21 @@ namespace MxPdv.Views
 
             try
             {
-                using (var context = new MxPdvContext())
-                {
-                    if (_produtoIdSelecionado == 0) // MODO INCLUSÃO
-                    {
-                        var novoProduto = new Produto 
-                        { 
-                            Nome = txtNome.Text,
-                            Preco = precoConvertido,
-                            Estoque = estoqueConvertido,
-                            GrupoProdutoId = Convert.ToInt32(cbxGrupo.SelectedValue) 
-                        };
-                        context.Produtos.Add(novoProduto);
-                    }
-                    else 
-                    {
-                        var produtoExistente = context.Produtos.Find(_produtoIdSelecionado);
-                        if (produtoExistente != null)
-                        {
-                            produtoExistente.Nome = txtNome.Text;
-                            produtoExistente.Preco = precoConvertido;
-                            produtoExistente.Estoque = estoqueConvertido;
-                            produtoExistente.GrupoProdutoId = Convert.ToInt32(cbxGrupo.SelectedValue);
-                        }
-                    }
+                var produto = new Produto 
+                { 
+                    Id = _produtoIdSelecionado, 
+                    Nome = txtNome.Text,
+                    Preco = precoConvertido,
+                    Estoque = estoqueConvertido,
+                    GrupoProdutoId = Convert.ToInt32(cbxGrupo.SelectedValue) 
+                };
 
-                    context.SaveChanges(); 
-                    MessageBox.Show("Produto salvo com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    
-                    LimparCampos();
-                    CarregarGrid();
-                }
+                _produtoService.Salvar(produto);
+
+                MessageBox.Show("Produto salvo com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                LimparCampos();
+                CarregarGrid();
             }
             catch (Exception ex)
             {
@@ -177,18 +151,11 @@ namespace MxPdv.Views
             {
                 try
                 {
-                    using (var context = new MxPdvContext())
-                    {
-                        var produto = context.Produtos.Find(_produtoIdSelecionado);
-                        if (produto != null)
-                        {
-                            context.Produtos.Remove(produto);
-                            context.SaveChanges();
-                            MessageBox.Show("Produto excluído!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LimparCampos();
-                            CarregarGrid();
-                        }
-                    }
+                    _produtoService.Excluir(_produtoIdSelecionado);
+                    
+                    MessageBox.Show("Produto excluído!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LimparCampos();
+                    CarregarGrid();
                 }
                 catch (Exception ex)
                 {
@@ -227,14 +194,5 @@ namespace MxPdv.Views
             txtNome.Focus();
         }
 
-        private void dvgProdutos_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void txtNome_TextChanged(object sender, EventArgs e)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }
